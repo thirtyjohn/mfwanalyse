@@ -2,11 +2,10 @@
 #coding:utf-8
 from scrapy.spider import BaseSpider
 from scrapy.http import FormRequest
-##from mfwutils import genUserIds
-import re,sys
+import re
 from scrapy import log
-sys.path.append('/Users/macbookpro/lvping/mangfenwo/mfwcrawl')
 from mfwutils import hasMoreFeedPage,getPagesAndCal,insertIntoDB,genUserIds
+from publicsettings import tempDir
 
 
 
@@ -32,7 +31,6 @@ class Tbshop_Spider(BaseSpider):
            return
        userId = m.group(1)
        pageNumber = m.group(2)
-       tempDir = "/Users/macbookpro/lvping/temp"
        open(tempDir+"/"+userId+ "_" + str(pageNumber)+".html",'wb').write(response.body)
        if hasMoreFeedPage(response.body):
            yield self.make_requests_from_url("http://www.mafengwo.cn/home/feedlist.php?uid="+ userId +"&page="+ str(int(pageNumber)+1))
