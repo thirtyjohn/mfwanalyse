@@ -17,7 +17,7 @@ def insertIntoDB(data):
     pass
 
 def genUserIds():
-    for userid in range(768689,768800):
+    for userid in range(768800,768800):
         yield userid
 
 
