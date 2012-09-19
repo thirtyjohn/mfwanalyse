@@ -1,11 +1,11 @@
 #coding:utf-8
 from bs4 import BeautifulSoup
 import bs4,os
-from publicsettings import tempDir
+from publicsettings import tempDir,dbconn
 
 
 
-moveList = list()
+moveDict = {}
 
 htmlfiles = os.listdir(tempDir)
 for htmlfile in htmlfiles:
@@ -21,10 +21,13 @@ for htmlfile in htmlfiles:
                 i = i.strip().encode("utf8")
                 if i <> "":
                     text = text + "$" + i
-        if not text in moveList and text <> "":
-            moveList.append(text)
-for m in moveList:
-    print m
+        if text <> "":
+            if moveDict.has_key(text):
+                moveDict[text] = moveDict[text]+1
+            else:
+                moveDict.update({text:1})
+for m in moveDict.keys():
+    dbconn.insert("mfwaction",name=m,count=moveDict[m])
 
     
 
