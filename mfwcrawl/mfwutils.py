@@ -1,5 +1,6 @@
 #coding:utf-8
 from bs4 import BeautifulSoup
+from publicsettings import useridRange
     
 def hasMoreFeedPage(html):
     soup = BeautifulSoup(html, from_encoding="utf8")
@@ -17,7 +18,7 @@ def insertIntoDB(data):
     pass
 
 def genUserIds():
-    for userid in range(768800,768801):
+    for userid in useridRange:
         yield userid
 
 
