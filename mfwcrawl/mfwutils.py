@@ -186,15 +186,19 @@ def calRate(tList):
 
 
 
-def insertIntoDB(data):
-    pass
+def getNickName(userid):
+    html = open(tempDir + "/" + str(userid) + "_1.html").read()
+    soup = BeautifulSoup(html,from_encoding="utf8")
+    div = soup.find("div","top_lab")
+    name = div.find("div","lab_on").string
+    return name[0:-4]
 
 def genUserIds():
     for userid in useridRange:
         yield userid
 
 
-def main():
+def fileToFeed():
     comp = re.compile(u"(\d+)_(\d+).html")
     userid = 0
     pagenumber = 0
@@ -210,6 +214,18 @@ def main():
                 getPagesAndCal(userid,pagenumber)
             userid = int(m.group(1))
             pagenumber = int(m.group(2))
+
+def main():
+    comp = re.compile(u"(\d+)_(\d+).html")
+    for filename in os.listdir(tempDir):
+        m = comp.search(filename)
+        if not m:
+            continue
+        if int(m.group(2)) == 1:
+            userid = int(m.group(1))
+            nickname = getNickName(userid)
+            dbconn.insert("mfwuser",userid=userid,nickname=nickname)
+
 
 
 if __name__ == "__main__":
