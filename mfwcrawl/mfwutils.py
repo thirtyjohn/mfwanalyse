@@ -110,7 +110,7 @@ def getFeed(html):
                 actDate = None
                 dateSpan = con.find("span","date")
                 if dateSpan:
-                    actDate = datetime.strptime(dateSpan.string,"%Y-%m-%d %H:%M:%S").date()
+                    actDate = datetime.strptime(dateSpan.string,"%Y-%m-%d %H:%M:%S")
                 feedList.append((actypeDict[text],actDate))
             else:
                 unknownActType.append(text)
@@ -121,7 +121,7 @@ def getActDateSummary(actDictList):
     dateSummaryDict = {}
     for actDict in actDictList:
         act = actDict[0]
-        actDate = actDict[1]
+        actDate = actDict[1].date()
         if actSummaryDict.has_key(act):
             actSummaryDict[act] = actSummaryDict[act] + 1
         else:
