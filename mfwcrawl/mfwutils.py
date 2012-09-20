@@ -28,29 +28,32 @@ def getPagesAndCal(userid,lastpage):
         return
     ##registryTime = getRegistryTime()
     sumCount = len(actDictList)
-    firstAct = actDictList[0][0]
-    firstActTime = actDictList[0][1]
+    firstAct = actDictList[-1][0]
+    firstActTime = actDictList[-1][1]
     actSummary,dateSummary = getActDateSummary(actDictList)
-    mostAct = actSummary[0]
+    mostAct = actSummary[0][0]
     actSummaryString = summaryToString(actSummary)
     actDense = calDense(actSummary)
     dateDense = calDense(dateSummary)
-    longestPeriod, mostPeriod, deviation = calRate(dateSummary)
-    print "sumCount:" + sumCount
-    print "firstAct:" + firstAct
-    print "firstActTime:" + firstActTime
-    print "mostAct:" + mostAct
-    print "actSummaryString:" + actSummaryString
-    print "actDense:" + actDense
-    print "dateDense:" + dateDense
-    print "longestPeriod:" + longestPeriod
-    print "mostPeriod:" + mostPeriod
-    print "deviation:" + deviation
+    longestPeriod, mostPeriod, deviation, avgPerd, middlePerd = calRate(dateSummary)
+    print "sumCount:" + str(sumCount)
+    print "firstAct:" + str(firstAct)
+    print "firstActTime:" + str(firstActTime)
+    print "mostAct:" + str(mostAct)
+    print "actSummaryString:" + str(actSummaryString)
+    print "actDense:" + str(actDense)
+    print "dateDense:" + str(dateDense)
+    print "longestPeriod:" + str(longestPeriod)
+    print "mostPeriod:" + str(mostPeriod)
+    print "deviation:" + str(deviation)
+    print "avgPerd:" + str(avgPerd)
+    print "middlePerd:" + str(middlePerd)
 
 def summaryToString(tList):
     summaryString = ""
     for t in tList:
         summaryString = summaryString + "$" + str(t[0]) + "|" + str(t[1])
+    return summaryString
 
 unknownActType = []
 
@@ -109,7 +112,7 @@ def calDense(tList):
     for t in tList:
         listsum = listsum + t[1]
     for t in tList:
-        dense = dense + (t[1]/listsum)^2
+        dense = dense + (t[1]*1.0/listsum)**2
     return math.sqrt(dense)
 
 
@@ -118,23 +121,28 @@ def calRate(tList):
     perdSummaryDict = {}
     sumPerd = 0
     segPerd = 0
+    perdList = []
     dateList = sorted(tList,key=lambda t: t[0],reverse=False)
     for i in range(1,len(dateList)):
         perd = (dateList[i][0] - dateList[i-1][0]).days
+        perdList.append(perd)
 ##most and longest
         if perdSummaryDict.has_key(perd):
             perdSummaryDict[perd] = perdSummaryDict[perd] + 1
         else:
             perdSummaryDict.update({perd:1})
         sumPerd = sumPerd + perd
-        segPerd = segPerd + perd^2
+        segPerd = segPerd + perd**2
     longestPerd = max(perdSummaryDict.keys())
-    mostPerd = max(perdSummaryDict.values())
-    avgPerd = sumPerd/(len(tList)-1)
-    print "segPerd:" + str(segPerd)
-    print "avgPerd" + str(avgPerd)
-    deviaiion = math.sqrt(1/(len(tList)-1)*segPerd-avgPerd^2)
-    return longestPerd, mostPerd, deviaiion
+    mostPerd = dictToOrderList(perdSummaryDict)
+    mostPerd = mostPerd[0][0]
+    avgPerd = sumPerd*1.0/(len(tList)-1)
+    ##print "segPerd:" + str(segPerd)
+    ##print "avgPerd:" + str(avgPerd)
+    deviaiion = math.sqrt(1.0/(len(tList)-1)*segPerd-avgPerd**2)
+    perdList = sorted(perdList,key=lambda t: t,reverse=False)
+    middlePerd = perdList[len(perdList)/2]
+    return longestPerd, mostPerd, deviaiion, avgPerd, middlePerd
 
 
 
