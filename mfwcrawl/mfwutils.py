@@ -1,6 +1,6 @@
 #coding:utf-8
 from bs4 import BeautifulSoup
-import bs4,math
+import bs4,math,re,os
 from publicsettings import useridRange,dbconn,tempDir
 from datetime import datetime
 
@@ -25,6 +25,24 @@ def getPagesAndCal(userid,lastpage):
         html = open(tempDir + "/" + str(userid) + "_" + str(pagenumber) + ".html").read()
         actDictList.extend( getFeed(html) )
     if len(actDictList) == 0:
+        dbconn.insert("mfwuserfeed",
+                userid = userid,
+                pageCount=lastpage,
+                sumCount=0
+        )
+        return
+    if len(actDictList) == 1:
+        dbconn.insert("mfwuserfeed",
+                userid = userid,
+                pageCount=lastpage,
+                sumCount=1,
+                firstAct = actDictList[-1][0],
+                firstActTime = actDictList[-1][1],
+                mostAct = actDictList[-1][0],
+                actSummaryString = "$" + str(actDictList[-1][0]) + "|1",
+                actDense = 1,
+                dateDense = 1
+        )
         return
     ##registryTime = getRegistryTime()
     sumCount = len(actDictList)
@@ -48,6 +66,22 @@ def getPagesAndCal(userid,lastpage):
     print "deviation:" + str(deviation)
     print "avgPerd:" + str(avgPerd)
     print "middlePerd:" + str(middlePerd)
+    dbconn.insert("mfwuserfeed",
+                userid = userid,
+                pageCount=lastpage,
+                sumCount=sumCount,
+                firstAct=firstAct,
+                firstActTime = firstActTime,
+                mostAct = mostAct,
+                actSummaryString = actSummaryString,
+                actDense = actDense,
+                dateDense = dateDense,
+                longestPeriod = longestPeriod,
+                mostPeriod = mostPeriod,
+                deviation = deviation,
+                avgPerd = avgPerd,
+                middlePerd = middlePerd
+    )
 
 def summaryToString(tList):
     summaryString = ""
@@ -117,6 +151,8 @@ def calDense(tList):
 
 
 def calRate(tList):
+    if len(tList) == 1:
+        return 0,0,0,0,0
     ##longestPeriod, mostPeriod, deviation
     perdSummaryDict = {}
     sumPerd = 0
@@ -159,7 +195,22 @@ def genUserIds():
 
 
 def main():
-    getPagesAndCal(768689,2)
+    comp = re.compile(u"(\d+)_(\d+).html")
+    userid = 0
+    pagenumber = 0
+    for filename in os.listdir(tempDir):
+        print filename
+        m = comp.search(filename)
+        if not m:
+            continue
+        if userid == int(m.group(1)):
+            pagenumber = int(m.group(2))
+        else:
+            if userid <> 0:
+                getPagesAndCal(userid,pagenumber)
+            userid = int(m.group(1))
+            pagenumber = int(m.group(2))
+
 
 if __name__ == "__main__":
     main()
