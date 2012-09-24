@@ -2,10 +2,10 @@
 #coding:utf-8
 from scrapy.spider import BaseSpider
 from scrapy.http import FormRequest
-import re
+import re,os
 from scrapy import log
-from mfwutils import hasMoreFeedPage,getPagesAndCal,insertIntoDB,genUserIds
-from publicsettings import tempDir
+from mfwutils import hasMoreFeedPage,getPagesAndCal,genUserIds,getArticleIds
+from publicsettings import tempDir,tempArticleDir
 
 
 
@@ -37,6 +37,24 @@ class Tbshop_Spider(BaseSpider):
        else:
            data = getPagesAndCal(userId)
            insertIntoDB(data)
+
+class MfwArticle_Spider(BaseSpider):
+    name = "mfwarticle"
+    allowed_domains = ["mafengwo.cn"]
+
+    def start_requests(self):
+        for articleid in getArticleIds():
+            yield self.make_requests_from_url("http://www.mafengwo.cn/i/"+str(articleid)+".html")
+
+    def parse(self, response):
+        m = re.search("http://www.mafengwo.cn/i/(\d+).html",response.url)
+        if not m:
+           return
+        articleId = m.group(1)
+        root = tempArticleDir + "/" + articleId[0:2]
+        if not os.path.exists(root):
+            os.mkdir(root)
+        open(root+"/"+articleId+ ".html",'wb').write(response.body)
 
 
 

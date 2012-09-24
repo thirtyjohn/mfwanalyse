@@ -1,7 +1,7 @@
 #coding:utf-8
 from bs4 import BeautifulSoup
 import bs4,math,re,os
-from publicsettings import useridRange,dbconn,tempDir
+from publicsettings import useridRange,dbconn,tempDir,articleidRange
 from datetime import datetime
 
 actypeDict = {}
@@ -196,6 +196,10 @@ def getNickName(userid):
 def genUserIds():
     for userid in useridRange:
         yield userid
+
+def getArticleIds():
+    for articleid in articleidRange:
+        yield articleid
 
 
 def fileToFeed():
