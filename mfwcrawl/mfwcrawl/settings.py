@@ -20,9 +20,9 @@ STATS_ENABLED = True
 LOG_FILE = logDir
 LOG_STDOUT = True
 DOWNLOAD_DELAY = 0
+
+
 """
-SCHEDULER_MIDDLEWARES = {
-}
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.contrib.downloadermiddleware.cookies.CookiesMiddleware': None,
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,

@@ -36,15 +36,26 @@ class Tbshop_Spider(BaseSpider):
            yield self.make_requests_from_url("http://www.mafengwo.cn/home/feedlist.php?uid="+ userId +"&page="+ str(int(pageNumber)+1))
        else:
            data = getPagesAndCal(userId)
-           insertIntoDB(data)
+           ##insertIntoDB(data)
 
 class MfwArticle_Spider(BaseSpider):
     name = "mfwarticle"
     allowed_domains = ["mafengwo.cn"]
 
     def start_requests(self):
+        exist_articleids = []
+        comp = re.compile("(\d+).html")
+        for dir in os.listdir(tempArticleDir):
+            if not os.path.isdir(tempArticleDir+"/"+dir):
+                continue
+            for articleFilename in os.listdir(tempArticleDir+"/"+dir):
+                m = comp.search(articleFilename)
+                if m:
+                    exist_articleids.append(int(m.group(1)))
+
         for articleid in getArticleIds():
-            yield self.make_requests_from_url("http://www.mafengwo.cn/i/"+str(articleid)+".html")
+            if not articleid in exist_articleids:
+                yield self.make_requests_from_url("http://www.mafengwo.cn/i/"+str(articleid)+".html")
 
     def parse(self, response):
         m = re.search("http://www.mafengwo.cn/i/(\d+).html",response.url)
