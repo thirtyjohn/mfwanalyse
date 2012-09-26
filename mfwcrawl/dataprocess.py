@@ -24,7 +24,9 @@ def calActSummary(sql):
 def main():
     sql =   """
             select actSummaryString from mfwuserfeed
-            where sumcount between 3 and 10 and firstact=6
+            where 
+            sumcount > 10
+            and mostact = 5
             """
     print calActSummary(sql)
 
