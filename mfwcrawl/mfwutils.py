@@ -193,8 +193,43 @@ def getNickName(userid):
     name = div.find("div","lab_on").string
     return name[0:-4]
 
+
+def hasMoreWaa(filepath):
+    if os.path.getsize(filepath) < 35000:
+        return False
+    return hasMoreFeedPage(open(filepath).read())
+
+
 def genUserIds():
+    feedRange = []
     for userid in useridRange:
+        feedRange.append(userid)
+    print feedRange
+    comp = re.compile("(\d+)_(\d+).html")
+    for dir in os.listdir(tempDir):
+        feedDir = tempDir + "/" + dir
+        if not os.path.isdir(feedDir):
+            continue
+        tempid = 0
+        temppage = 0
+        for feedFilename in os.listdir(feedDir):
+            m = comp.search(feedFilename)
+            if m:
+                userid = int(m.group(1))
+                pagenum = int(m.group(2))
+                if tempid == 0:
+                    tempid = userid
+                if temppage == 0:
+                    temppage = pagenum
+                if  userid <> tempid:
+                    if hasMoreWaa(feedDir+"/"+str(tempid) + "_" + str(temppage) + ".html") and not tempid in feedRange:
+                        feedRange.append(tempid)
+                    elif tempid in feedRange:
+                        feedRange.remove(tempid)
+                    tempid = userid
+                temppage = pagenum
+
+    for userid in feedRange:
         yield userid
 
 def getArticleIds():
