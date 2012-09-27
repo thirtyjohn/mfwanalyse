@@ -13,6 +13,8 @@ for r in res:
 def hasMoreFeedPage(html):
     soup = BeautifulSoup(html, from_encoding="utf8")
     page = soup.find("div","f_turnpage")
+    if not page:
+        return False
     pages = page.get_text()
     if pages.find(u"末页") > -1:
         return True
