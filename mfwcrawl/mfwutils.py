@@ -24,7 +24,7 @@ def hasMoreFeedPage(html):
 def getPagesAndCal(userid,lastpage):
     actDictList = []
     for pagenumber in range(1,lastpage+1):
-        html = open(tempDir + "/" + str(userid) + "_" + str(pagenumber) + ".html").read()
+        html = open(tempDir + "/" + str(userid)[0:2] +"/" +str(userid) + "_" + str(pagenumber) + ".html").read()
         actDictList.extend( getFeed(html) )
     if len(actDictList) == 0:
         dbconn.insert("mfwuserfeed",
@@ -238,25 +238,34 @@ def getArticleIds():
     for articleid in articleidRange:
         yield articleid
 
+def hasFeed(userid):
+    res = dbconn.query("select * from mfwuserfeed where userid = $userid",vars=dict(userid=userid))
+    if len(res) > 0:
+        return True
+    return False
+
 
 def fileToFeed():
     comp = re.compile(u"(\d+)_(\d+).html")
     userid = 0
     pagenumber = 0
-    for filename in os.listdir(tempDir):
-        print filename
-        m = comp.search(filename)
-        if not m:
-            continue
-        if userid == int(m.group(1)):
-            pagenumber = int(m.group(2))
-        else:
-            if userid <> 0:
-                getPagesAndCal(userid,pagenumber)
-            userid = int(m.group(1))
-            pagenumber = int(m.group(2))
+    for feedDir in os.listdir(tempDir):
+        if os.path.isdir(tempDir +"/"+ feedDir):
+            for filename in os.listdir(tempDir +"/"+ feedDir):
+                print filename
+                m = comp.search(filename)
+                if not m:
+                    continue
+                if userid == int(m.group(1)):
+                    pagenumber = int(m.group(2))
+                else:
+                    if userid <> 0:
+                        if not hasFeed(userid):
+                            getPagesAndCal(userid,pagenumber)
+                    userid = int(m.group(1))
+                    pagenumber = int(m.group(2))
 
-def main():
+def fileToNickname():
     comp = re.compile(u"(\d+)_(\d+).html")
     for filename in os.listdir(tempDir):
         m = comp.search(filename)
@@ -270,5 +279,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fileToFeed()
 
