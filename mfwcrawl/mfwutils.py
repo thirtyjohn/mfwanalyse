@@ -206,7 +206,7 @@ def genUserIds():
     feedRange = []
     for userid in useridRange:
         feedRange.append(userid)
-    print feedRange
+    ##print feedRange
     comp = re.compile("(\d+)_(\d+).html")
     for dir in os.listdir(tempDir):
         feedDir = tempDir + "/" + dir
