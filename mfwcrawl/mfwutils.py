@@ -189,7 +189,7 @@ def calRate(tList):
 
 
 def getNickName(userid):
-    html = open(tempDir + "/" + str(userid) + "_1.html").read()
+    html = open(tempDir + "/" +str(userid)[0:2]+ "/" + str(userid) + "_1.html").read()
     soup = BeautifulSoup(html,from_encoding="utf8")
     div = soup.find("div","top_lab")
     name = div.find("div","lab_on").string
@@ -267,17 +267,21 @@ def fileToFeed():
 
 def fileToNickname():
     comp = re.compile(u"(\d+)_(\d+).html")
-    for filename in os.listdir(tempDir):
-        m = comp.search(filename)
-        if not m:
+    for feedDir in os.listdir(tempDir):
+        if not os.path.isdir(tempDir +"/"+ feedDir):
             continue
-        if int(m.group(2)) == 1:
-            userid = int(m.group(1))
-            nickname = getNickName(userid)
-            dbconn.insert("mfwuser",userid=userid,nickname=nickname)
+        for filename in os.listdir(tempDir +"/"+ feedDir):
+            m = comp.search(filename)
+            if not m:
+                continue
+            if int(m.group(2)) == 1:
+                userid = int(m.group(1))
+                if len(dbconn.query("select * from mfwuser where userid = $userid",vars=dict(userid=userid))) == 0:
+                    nickname = getNickName(userid)
+                    dbconn.insert("mfwuser",userid=userid,nickname=nickname)
 
 
 
 if __name__ == "__main__":
-    fileToFeed()
+    fileToNickname()
 

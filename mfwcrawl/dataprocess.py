@@ -1,5 +1,5 @@
 #coding:utf-8
-from publicsettings import dbconn
+from publicsettings import dbconn,tempDataDir
 from mfwutils import dictToOrderList
 
 sumcount_con = ["0","1","2","between 3 and 10",">10"]
@@ -7,10 +7,11 @@ sumcount_con = ["0","1","2","between 3 and 10",">10"]
 class Condition:
     def __init__(self,condition):
         self.conditon = condition
+        self.sumCount = self.calAct("sumcount",condition)
         self.firstact = self.calAct("firstact",condition)
         self.mostact = self.calAct("mostact",condition)
         self.actDense = self.calDense("actDense",condition)
-        self.dataDense = self.calDense("dateDense",condition)
+        self.dateDense = self.calDense("dateDense",condition)
         
     def calAct(self,col,cond):
         r_dict = {}
@@ -47,7 +48,9 @@ def calDif(con1,con2):
     con1 = Condition(con1)
     con2 = Condition(con2)
     dif_res = calDictDif(con1.firstact,con2.firstact)
-    print dif_res
+    f = open(tempDataDir,"wb")
+    for k,v in dif_res.items():
+        f.write(str(k)+","+str(v) +"\n")
 
 def calDictDif(dict1,dict2):
     res_d = {}
@@ -61,7 +64,7 @@ def calDictDif(dict1,dict2):
     for k in dict2.keys():
         if not dict1.has_key(k):
             res_d.update({k:1})
-    print res_d
+    return res_d
 
 
 
@@ -83,6 +86,25 @@ def calActSummary(sql):
 
     return summaryOrder
 
+def anaySumcount():
+    sumDict = {}
+    for i in range(10000,900000,10000):
+        con = Condition("userid between "+str(i)+" and "+str(i+10000))
+        sumDict.update({str(i):(con.sumCount[0],con.sumCount[1] if con.sumCount.has_key(1) else 0)})
+
+    f = open(tempDataDir,"wb")
+    for k,v in sumDict.items():
+        f.write(str(k)+","+str(v[0])+ "," + str(v[1]) +"\n")
+
+def anayAct():
+    f = open(tempDataDir,"wb")
+    for i in range(10000,900000,10000):
+        con = Condition("userid between "+str(i)+" and "+str(i+10000))
+        actdenseList = dictToOrderList(con.actDense)
+        datedenseList = dictToOrderList(con.dateDense)
+        f.write(str(i)+","+str(actdenseList[0])+ "," + str(datedenseList[0]) +"\n")
+
+
 def main():
     sql =   """
             select actSummaryString from mfwuserfeed
@@ -93,5 +115,5 @@ def main():
     print calActSummary(sql)
 
 if __name__ == "__main__":
-    calDif("sumcount =2","sumcount = 2 and mostact = 1")
+    calDif("userid between 480000 and 490000","userid between 490000 and 500000")
 
