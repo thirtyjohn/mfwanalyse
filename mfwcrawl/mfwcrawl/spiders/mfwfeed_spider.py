@@ -33,6 +33,8 @@ class Tbshop_Spider(BaseSpider):
        userId = m.group(1)
        pageNumber = m.group(2)
        root = tempDir + "/" + userId[0:2]
+       if int(userId) >= 1000000:
+           root = tempDir + "/" + userId[0:3]
        if not os.path.exists(root):
             os.mkdir(root)
        open(root+"/"+userId+ "_" + str(pageNumber)+".html",'wb').write(response.body)

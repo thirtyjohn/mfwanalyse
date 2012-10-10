@@ -105,6 +105,26 @@ def anayAct():
         f.write(str(i)+","+str(actdenseList[0])+ "," + str(datedenseList[0]) +"\n")
 
 
+def ana(condition):
+    cons = [
+        condition,
+        condition + " and sumcount = 1",
+        condition + " and sumcount = 2",
+        condition + " and sumcount between 3 and 10",
+        condition + " and sumcount > 10"
+    ]
+    
+    f = open(tempDataDir,"wb")
+    for c in cons:
+        con = Condition(c)
+        flist = dictToOrderList(con.firstact)
+        ##mlist = dictToOrderList(con.mostact)
+        f.write(c+"\n")
+        for v in flist:
+            f.write(str(v[0])+","+str(v[1])+"\n")
+
+
+
 def main():
     sql =   """
             select actSummaryString from mfwuserfeed
@@ -115,5 +135,5 @@ def main():
     print calActSummary(sql)
 
 if __name__ == "__main__":
-    calDif("userid between 480000 and 490000","userid between 490000 and 500000")
+    ana("userid between 500000 and 600000 and firstact is not null")
 
