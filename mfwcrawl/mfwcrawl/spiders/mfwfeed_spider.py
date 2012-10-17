@@ -5,7 +5,7 @@ from scrapy.http import FormRequest
 import re,os
 from scrapy import log
 from mfwutils import hasMoreFeedPage,getPagesAndCal,genUserIds,getArticleIds
-from publicsettings import tempDir,tempArticleDir
+from publicsettings import tempDir,tempArticleDir,tempMddDir,mddRange
 
 
 
@@ -74,7 +74,24 @@ class MfwArticle_Spider(BaseSpider):
         open(root+"/"+articleId+ ".html",'wb').write(response.body)
 
 
+class MfwMdd_Spider(BaseSpider):
+    name = "mfwmdd"
+    allowed_domains = ["mafengwo.cn"]
 
+    def start_requests(self):
+        for mddid in mddRange:
+            yield self.make_requests_from_url("http://www.mafengwo.cn/travel-scenic-spot/mafengwo/"+ str(mddid)+".html")
+
+    def parse(self, response):
+        m = re.search("http://www.mafengwo.cn/travel-scenic-spot/mafengwo/(\d+).html",response.url)
+        if not m:
+           log.msg("301page"+ response.url)
+           return
+        mddId = m.group(1)
+        root = tempMddDir + "/" + mddId[0]
+        if not os.path.exists(root):
+            os.mkdir(root)
+        open(root+"/"+mddId+ ".html",'wb').write(response.body)
 
 
 
