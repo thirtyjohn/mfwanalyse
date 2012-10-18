@@ -74,11 +74,13 @@ def cal(className):
     else:
         class_dict.update({className:1})
 
-for mddDir in os.listdir(tempMddDir):
-    if not os.path.isdir(tempMddDir +"/"+ mddDir):
-        continue
-    for filename in os.listdir(tempMddDir +"/"+ mddDir):
-        ana(open(tempMddDir+"/"+mddDir+"/"+filename,"r").read())
+##for mddDir in os.listdir(tempMddDir):
+##    if not os.path.isdir(tempMddDir +"/"+ mddDir):
+##        continue
+for filename in os.listdir(tempMddDir +"/1"):
+    ana(open(tempMddDir+"/1/"+filename,"r").read())
 
-print dictToOrderList(class_dict)
+f = open("d:/log/mmd.log","wb")
+for d in dictToOrderList(class_dict):
+    f.write(d[0] + "," + str(d[1])+ "\r\n")
 
