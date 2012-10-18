@@ -1,9 +1,11 @@
 #coding:utf-8
 
-from publicsettings import dbconn,tempDir,tempDataDir
+from publicsettings import dbconn,tempDir,tempDataDir,tempMddDir
 from mfwutils import dictToOrderList
 from bs4 import BeautifulSoup
-import bs4
+import bs4,os
+
+"""
 
 actypeDict = {}
 res = dbconn.query("select * from mfwactype")
@@ -36,4 +38,47 @@ dlist = dictToOrderList(unknownActType)
 f = open(tempDataDir,"wb")
 for d in dlist:
     f.write(d[0].encode("utf8")+ "," +str(d[1])+"\n")
-    
+
+"""
+
+class_dict = {}
+def ana(html):
+    soup = BeautifulSoup(html,from_encoding="utf8")
+    city_sides = soup.find_all("div","city_side")
+    for city_side in city_sides:
+        for div in city_side.children:
+            if isinstance(div,bs4.element.NavigableString):
+                continue
+            if div.name <> "div":
+                continue
+            cal(div['class'])
+
+    city_conts = soup.find_all("div","city_cont")
+    for city_cont in city_conts:
+        for div in city_cont.children:
+            if isinstance(div,bs4.element.NavigableString):
+                continue
+            if div.name <> "div":
+                continue
+            cal(div['class'])
+
+
+def cal(className):
+    if isinstance(className,list):
+        tempName = ""
+        for c in className:
+            tempName = tempName + " " +c
+        className = tempName
+    if class_dict.has_key(className):
+        class_dict[className] = class_dict[className] + 1
+    else:
+        class_dict.update({className:1})
+
+for mddDir in os.listdir(tempMddDir):
+    if not os.path.isdir(tempMddDir +"/"+ mddDir):
+        continue
+    for filename in os.listdir(tempMddDir +"/"+ mddDir):
+        ana(open(tempMddDir+"/"+mddDir+"/"+filename,"r").read())
+
+print dictToOrderList(class_dict)
+
