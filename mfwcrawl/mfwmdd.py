@@ -89,7 +89,15 @@ def main():
             html = open(tempMddDir+"/"+mdddir+"/"+filename,"r").read()
             if html == "":
                 continue
-            anaMdd(mddid,html)
+            mmdlevel(html)
+    print levelset
+
+levelset = set()
+def mmdlevel(html):
+    soup = BeautifulSoup(html,from_encoding="utf8")
+    crumbs = soup.find("div","crumb").find_all("a")
+    levelset.add(len(crumbs))
+
 
 if __name__ == "__main__":
     main()
