@@ -84,7 +84,7 @@ class MfwMdd_Spider(BaseSpider):
             yield self.make_requests_from_url("http://www.mafengwo.cn/mdd/smap.php?mddid="+str(r.pid))
 
     def parse(self, response):
-        m = re.search("http://www.mafengwo.cn/mdd/smap.php?mddid=(\d+)",response.url)
+        m = re.search("mddid=(\d+)",response.url)
         if not m:
            log.msg("3011page"+ response.url)
            return

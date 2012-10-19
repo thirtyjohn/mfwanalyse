@@ -3,7 +3,7 @@
 from publicsettings import dbconn,tempDir,tempDataDir,tempMddDir
 from mfwutils import dictToOrderList
 from bs4 import BeautifulSoup
-import bs4,os
+import bs4,os,re
 
 """
 
@@ -40,7 +40,7 @@ for d in dlist:
     f.write(d[0].encode("utf8")+ "," +str(d[1])+"\n")
 
 """
-
+"""
 class_dict = {}
 def ana(html):
     soup = BeautifulSoup(html,from_encoding="utf8")
@@ -83,4 +83,13 @@ for filename in os.listdir(tempMddDir +"/1"):
 f = open("d:/log/mmd.log","wb")
 for d in dictToOrderList(class_dict):
     f.write(d[0] + "," + str(d[1])+ "\r\n")
-
+"""
+res = dbconn.query("select distinct pid from mfwmdd where pid is not null")
+comp = re.compile(u"<title>(.+)地区旅游地图")
+for r in res:
+    pid = r.pid
+    html = open(tempMddDir+"/"+str(pid)[0]+"/"+str(pid)+".html","r").read()
+    soup = BeautifulSoup(html,from_encoding="utf8")
+    name = comp.search(unicode(soup.title)).group(1)
+    dbconn.insert("mfwpid",pid=pid,name=name)
+    
