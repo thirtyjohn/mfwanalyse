@@ -89,15 +89,21 @@ def main():
             html = open(tempMddDir+"/"+mdddir+"/"+filename,"r").read()
             if html == "":
                 continue
-            mmdlevel(html)
-    print levelset
+            mmdlevel(mddid,html)
 
-levelset = set()
-def mmdlevel(html):
+
+complevel = re.compile("mddid=(\d*)")
+def mmdlevel(mddid,html):
     soup = BeautifulSoup(html,from_encoding="utf8")
     crumbs = soup.find("div","crumb").find_all("a")
-    levelset.add(len(crumbs))
-
+    href = crumbs[1]["href"]
+    pid = complevel.search(href).group(1)
+    if pid == "":
+        pid = None
+    else:
+        pid = int(pid)
+    dbconn.update("mfwmdd",where="mddid = $mddid",vars=locals(),pid=pid)
+    
 
 if __name__ == "__main__":
     main()
